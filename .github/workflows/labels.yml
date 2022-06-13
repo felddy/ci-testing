@@ -13,6 +13,9 @@ on:
 permissions:
   contents: read
 
+env:
+  - LABEL_YAML: /tmp/labels.yml
+
 jobs:
   labeler:
     permissions:
@@ -26,5 +29,10 @@ jobs:
           egress-policy: audit  # TODO: change to 'egress-policy: block' after couple of runs
       - name: Checkout
         uses: actions/checkout@d0651293c4a5a52e711f25b41b05b2212f385d28
+      - name: Fetch labels from ${{ github.repository_owner }}/${{ github.repository_owner }} repo
+        run: |
+          curl --silent https://raw.githubusercontent.com/${{ github.repository_owner }}/${{ github.repository_owner }}/develop/.github/labels.yml > ${{ env.LABEL_YAML }}
       - name: Run Labeler
         uses: crazy-max/ghaction-github-labeler@f8d36db286402ecb67054c6a14ec17ba2cd681a0
+        with:
+          yaml-file: ${{ env.LABEL_YAML }}
