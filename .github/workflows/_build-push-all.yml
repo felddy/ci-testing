@@ -105,7 +105,7 @@ jobs:
           ${{ env.DOCKERFILE_X }}
       - name: Build and push platform images to registries
         id: docker_build
-        uses: docker/build-push-action@e551b19e49efd4e98792db7592c17c09b89db8d8
+        uses: docker/build-push-action@c84f38281176d4c9cdb1626ffafcd6b3911b5d94
         with:
           build-args: ${{ inputs.build_args }}
           cache-from: type=local,src=${{ inputs.buildx_cache_dir }}
