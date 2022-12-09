@@ -6,6 +6,22 @@
 
 This repo is used to test GitHub Actions workflows.
 
+1. Build the image using `buildx`:
+
+    ```console
+    docker buildx build \
+      --platform linux/amd64 \
+      --build-arg VERSION=1.2.3 \
+      --output type=docker \
+      --tag felddy/ci-testing:1.2.3 .
+    ```
+
+1. Testing
+
+    ```console
+    pytest --image-tag felddy/ci-testing:1.2.3
+    ```
+
 ## Contributing ##
 
 We welcome contributions!  Please see [`CONTRIBUTING.md`](CONTRIBUTING.md) for
