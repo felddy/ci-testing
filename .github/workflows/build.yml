@@ -68,7 +68,7 @@ jobs:
     uses: felddy/reusable-workflows/.github/workflows/common-lint.yml@develop
 
   build-test-image:
-    name: "Build normal test image"
+    name: "Build test image"
     needs:
       - config
       - lint
@@ -85,11 +85,11 @@ jobs:
       build_args: |
         VERSION=${{ needs.metadata.outputs.source_version }}
 
-  test-normal-image:
-    name: "Test normal image"
+  test-image:
+    name: "Test image"
     needs:
       - artifact-key
-      - build-normal-test-image
+      - build-test-image
       - config
     uses: felddy/reusable-workflows/.github/workflows/docker-pytest-image.yml@develop
     with:
@@ -100,29 +100,12 @@ jobs:
     secrets:
       data_artifact_key: ${{ secrets.ARTIFACT_KEY }}
 
-  test-pre-installed-image:
-    name: "Test pre-installed image"
-    needs:
-      - artifact-key
-      - build-pre-installed-test-image
-      - config
-    uses: ./.github/workflows/docker-pytest-image.yml
-    with:
-      data_artifact_name: ${{ needs.config.outputs.data_artifact_name }}-pre-installed
-      data_artifact_path: ${{ needs.config.outputs.data_artifact_path }}
-      image_artifact_name: ${{ needs.config.outputs.image_tarball_artifact_name }}-pre-installed
-      image_tarball_name: ${{ needs.config.outputs.test_platform }}.tar
-    secrets:
-      data_artifact_key: ${{ secrets.ARTIFACT_KEY }}
-      image_artifact_key: ${{ secrets.ARTIFACT_KEY }}
-
   build-each-platform:
     needs:
       - config
       - lint
       - metadata
-      - test-normal-image
-      - test-pre-installed-image
+      - test-image
     if: github.event_name != 'pull_request'
     strategy:
       matrix:
