@@ -13,7 +13,7 @@ on:
     outputs:
       image_name:
         description: "The Docker image name"
-        value: felddy/foundryvtt
+        value: felddy/ci-testing
       data_artifact_name:
         description: "The name of the test data artifact"
         value: test-output

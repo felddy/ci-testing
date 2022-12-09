@@ -10,8 +10,7 @@ import pytest
 
 from .utils import LogTailer
 
-READY_MESSAGE = "Server started and listening on port"
-RETRY_INITIAL_DELAY = 120
+READY_MESSAGE = "I am running on"
 
 
 @pytest.mark.parametrize(
@@ -27,19 +26,6 @@ def test_container_running(container):
             break
         time.sleep(1)
     assert container.status in ("exited", "running")
-
-
-@pytest.mark.xfail
-def test_environment_credentials():
-    """Verify environment is set correctly."""
-    # Check for credential variables.
-    # These are not required for pre-built images.
-    assert (
-        "FOUNDRY_USERNAME" in os.environ
-    ), "FOUNDRY_USERNAME was not in the environment"
-    assert (
-        "FOUNDRY_PASSWORD" in os.environ
-    ), "FOUNDRY_PASSWORD was not in the environment"
 
 
 def test_wait_for_version_container_exit(version_container):
@@ -60,12 +46,7 @@ def test_log_version(version_container, project_version):
 
 @pytest.mark.slow
 def test_wait_for_ready(main_container, redacted_printer):
-    """
-    Wait for Foundry to be ready.
-
-    This could take a while if we have to back off due to rate limiting.
-    If the logs stop updating for too long, or the container exits, fail.
-    """
+    """Look for the READY_MESSAGE in the logs."""
     NO_LOG_TIMEOUT = 60
     tailer = LogTailer(main_container, since=1)
     timeout: float = time.time() + NO_LOG_TIMEOUT
@@ -93,28 +74,6 @@ def test_wait_for_ready(main_container, redacted_printer):
         assert (
             False
         ), "Logging stopped for {NO_LOG_TIMEOUT} seconds, and did not contain the ready message."
-
-
-@pytest.mark.slow
-def test_wait_for_healthy(main_container):
-    """Wait for container to be healthy."""
-    # It could already in an unhealthy state when we start as we may have been
-    # rate limited.
-    TIMEOUT = 180
-    api_client = main_container.client.api
-    for _ in range(TIMEOUT):
-        # Verify the container is still running
-        main_container.reload()
-        assert main_container.status == "running", "The container unexpectedly exited."
-        inspect = api_client.inspect_container(main_container.name)
-        status = inspect["State"]["Health"]["Status"]
-        if status == "healthy":
-            break
-        time.sleep(1)
-    else:
-        assert (
-            False
-        ), f"Container status did not transition to 'healthy' within {TIMEOUT} seconds."
 
 
 @pytest.mark.skipif(

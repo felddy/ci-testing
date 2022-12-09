@@ -34,23 +34,6 @@ jobs:
     with:
       image_name: ${{ needs.config.outputs.image_name }}
 
-  foundry-secrets:
-    name: "Foundry secrets"
-    runs-on: ubuntu-latest
-    steps:
-      - name: Check foundry.com credentials
-        run: |
-          return_code=0
-          if [ -z "${{ secrets.FOUNDRY_USERNAME }}" ]; then
-            echo "::warning::Set the FOUNDRY_USERNAME secret."
-            return_code=1
-          fi
-          if [ -z "${{ secrets.FOUNDRY_PASSWORD }}" ]; then
-            echo "::warning::Set the FOUNDRY_PASSWORD secret."
-            return_code=1
-          fi
-          exit $return_code
-
   docker-secrets:
     name: "Docker secrets"
     runs-on: ubuntu-latest
@@ -84,7 +67,7 @@ jobs:
     needs: [config]
     uses: felddy/reusable-workflows/.github/workflows/common-lint.yml@develop
 
-  build-normal-test-image:
+  build-test-image:
     name: "Build normal test image"
     needs:
       - config
@@ -102,42 +85,13 @@ jobs:
       build_args: |
         VERSION=${{ needs.metadata.outputs.source_version }}
 
-  build-pre-installed-test-image:
-    name: "Build pre-installed test image"
-    needs:
-      - artifact-key
-      - config
-      - foundry-secrets
-      - lint
-      - metadata
-    uses: felddy/reusable-workflows/.github/workflows/docker-build-image.yml@develop
-    with:
-      artifact_name: ${{ needs.config.outputs.image_tarball_artifact_name }}-pre-installed
-      cache_from_scopes: ${{ needs.config.outputs.test_platform }}-pre-installed
-      cache_to_scope: ${{ needs.config.outputs.test_platform }}-pre-installed
-      image_tarball_name: ${{ needs.config.outputs.test_platform }}.tar
-      image_labels: ${{ needs.metadata.outputs.image_labels }}
-      platforms: ${{ needs.config.outputs.test_platform }}
-    secrets:
-      artifact_key: ${{ secrets.ARTIFACT_KEY }}
-      build_args: |
-        FOUNDRY_PASSWORD=${{ secrets.FOUNDRY_PASSWORD }}
-        FOUNDRY_USERNAME=${{ secrets.FOUNDRY_USERNAME }}
-        VERSION=${{ needs.metadata.outputs.source_version }}
-
-# Since we need to pass the foundryvtt.com credentials to the tests, we can't
-# use the standard reusable test workflow.  Instead, we'll use a modified
-# version of the workflow that accepts the credential secrets and is stored in
-# this repository.
-
   test-normal-image:
     name: "Test normal image"
     needs:
       - artifact-key
       - build-normal-test-image
       - config
-      - foundry-secrets
-    uses: ./.github/workflows/docker-pytest-image.yml
+    uses: felddy/reusable-workflows/.github/workflows/docker-pytest-image.yml@develop
     with:
       data_artifact_name: ${{ needs.config.outputs.data_artifact_name }}
       data_artifact_path: ${{ needs.config.outputs.data_artifact_path }}
@@ -145,8 +99,6 @@ jobs:
       image_tarball_name: ${{ needs.config.outputs.test_platform }}.tar
     secrets:
       data_artifact_key: ${{ secrets.ARTIFACT_KEY }}
-      foundry_password: ${{ secrets.FOUNDRY_PASSWORD }}
-      foundry_username: ${{ secrets.FOUNDRY_USERNAME }}
 
   test-pre-installed-image:
     name: "Test pre-installed image"

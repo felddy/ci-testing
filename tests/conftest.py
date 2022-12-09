@@ -1,7 +1,6 @@
 """pytest configuration."""
 
 # Standard Python Libraries
-import os
 from pathlib import Path
 import re
 
@@ -11,7 +10,7 @@ import pytest
 
 from .utils import RedactedPrinter
 
-MAIN_SERVICE_NAME = "foundry"
+MAIN_SERVICE_NAME = "main"
 REDACTION_REGEXES = [
     re.compile(r"AWSAccessKeyId=(.*?)&Signature=(.*?)&"),
 ]
@@ -23,22 +22,13 @@ client = docker.from_env()
 
 @pytest.fixture(scope="session")
 def main_container(image_tag):
-    """Fixture for the main Foundry container."""
+    """Fixture for the main container."""
     container = client.containers.run(
         image_tag,
         detach=True,
-        environment={
-            "CONTAINER_URL_FETCH_RETRY": 5,
-            "CONTAINER_VERBOSE": True,
-            "FOUNDRY_ADMIN_KEY": "atropos",
-            "FOUNDRY_GID": "foundry",
-            "FOUNDRY_PASSWORD": os.environ.get("FOUNDRY_PASSWORD"),
-            "FOUNDRY_UID": "foundry",
-            "FOUNDRY_USERNAME": os.environ.get("FOUNDRY_USERNAME"),
-            "TIMEZONE": "UTC",
-        },
+        environment={},
         name=MAIN_SERVICE_NAME,
-        ports={"30000/tcp": None},
+        ports={},
         volumes={str(Path.cwd() / Path("data")): {"bind": "/data", "driver": "local"}},
     )
     yield container
