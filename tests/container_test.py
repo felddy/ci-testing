@@ -70,7 +70,10 @@ def test_wait_for_ready(main_container, redacted_printer):
         print(
             f"Test ending... container status: {main_container.status}, log timeout: {time.time() - timeout}"
         )
-        assert main_container.status == "running", "The container unexpectedly exited."
+        assert main_container.status in (
+            "exited",
+            "running",
+        ), "The didn't start correctly."
         assert (
             False
         ), "Logging stopped for {NO_LOG_TIMEOUT} seconds, and did not contain the ready message."
