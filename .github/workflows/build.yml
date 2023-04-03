@@ -125,6 +125,7 @@ jobs:
         VERSION=${{ needs.metadata.outputs.source_version }}
 
   generate-sboms:
+    name: "Bill of Materials"
     needs:
       - build-each-platform
       - config
