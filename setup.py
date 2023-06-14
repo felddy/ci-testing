@@ -69,7 +69,7 @@ setup(
     install_requires=[
         "docker-compose == 1.29.2",
         "semver == 3.0.0",
-        "setuptools == 67.6.1",
+        "setuptools == 67.8.0",
         "wheel == 0.40.0",
     ],
     extras_require={
@@ -78,7 +78,7 @@ setup(
             "coveralls == 3.3.1",
             "docker == 6.0.1",
             "pre-commit == 3.2.2",
-            "pytest == 7.2.2",
+            "pytest == 7.3.2",
             "pytest-cov == 4.0.0",
             "pytest-lazy-fixture == 0.6.3",
         ]
