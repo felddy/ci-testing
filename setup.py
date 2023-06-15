@@ -79,7 +79,7 @@ setup(
             "docker == 6.0.1",
             "pre-commit == 3.2.2",
             "pytest == 7.3.2",
-            "pytest-cov == 4.0.0",
+            "pytest-cov == 4.1.0",
             "pytest-lazy-fixture == 0.6.3",
         ]
     },
